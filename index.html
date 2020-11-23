@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>SF Safest Areas</title>
+        <link href="favicon.ico" rel="icon" type="image/x-icon" />
+        <link rel="stylesheet" href="stylesheet.css">
+
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+            integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+        crossorigin=""/>
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+        integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+        crossorigin=""></script>
+    </head>
+    <body>
+        <script src="heatmap.min.js"></script>
+        <script src="leaflet-heatmap.js"></script>
+        
+        <div id="searchPane">
+            <h1>San Francisco Crime Heatmap</h1>
+            <form>
+                <input type="search" name="search" id="search" placeholder="Search crimes">
+                <button type="submit">
+                    <img height="30" width="30" src="search.png">
+                </button>
+            </form>
+            
+            <ul>
+                <li>
+                    <input type="radio" name="searchType"  id="quicksort">
+                    <label for="quicksort">Quicksort + binary search</label>
+                </li>
+                <li>
+                    <input type="radio" name="searchType" id="bst">
+                    <label for="bst">Binary search tree lookup</label>
+                </li>
+                <li>
+                    <input type="radio" name="searchType" checked id="linear">
+                    <label for="linear">Linear search</label>
+                </li>
+            </ul>       
+            
+            <input type="checkbox" name="" id="toggleSort">
+            <label for="toggleSort">Reuse sort between searches</label>
+
+            <div id="results">
+                <h3>Results</h3>
+                <h4>Number of matches: </h4>
+                <p>0</p>
+                <h4>Elapsed time: </h4>
+                <p>0ms</p>
+
+            </div>
+        </div>
+        
+        <div id="heatmap"></div>
+        
+        <script src="heatmapConfig.js"></script>
+        <script src="algorithm.js"></script>
+        <script src="search.js"></script>
+        <script>
+            let crimeData
+            
+            fetch("http://localhost:3000/data").then( res => res.json()).then( data => {
+                crimeData = data
+                heatmapLayer.setData({
+                    max: 4000,
+                    min: 1,
+                    data: data
+                })
+            })
+            
+            document.querySelector('form').onsubmit = (e) => {
+                e.preventDefault()
+                const data = handleSearch(crimeData)
+                const searchQuery = document.querySelector("input[type=search]").value
+                heatmapLayer.setData({ 
+                    max: searchQuery.length ? Math.sqrt(data.length)*4.5 : 4000, 
+                    min: 1, 
+                    data: data
+                })
+            }
+        </script>
+    </body>
+</html>
