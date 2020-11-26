@@ -1,7 +1,7 @@
 let savedBST;
 let savedSort;
 function handleSearch(crimeData) {
-    const searchQuery = document.querySelector("input[type=search]").value;
+    const searchQuery = document.querySelector("input[type=search]").value.toLowerCase();
     const reuseSort = document.querySelector('input[type=checkbox]').checked;
     let searchType;
     document.getElementsByName("searchType").forEach((elem) => {

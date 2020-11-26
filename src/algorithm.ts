@@ -1,56 +1,14 @@
 function linearSearch(crimeData: CrimeData, query: string): CrimeData {
-    return crimeData.filter( row => row.description.startsWith( query.toLowerCase() ) )
+    //Yields a list with only the elements of crimeData with descriptions that start with query
+    return crimeData.filter( ({description}) => description.startsWith(query) )
 }
 
-function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-}
+//Comparators, used by quicksort()
+const lessThan =    pivot => val => val.description < pivot.description
+const greaterThan = pivot => val => val.description > pivot.description
+const equalTo =     pivot => val => val.description === pivot.description
 
-function makeData(n: number) {
-    const output = []
-    for(let i = 0; i < n; i++)
-        output.push({description: Math.random().toString(36)})
-    shuffle(output)
-    return output
-}
-
-function lessThan(pivot)    { return val => val.description < pivot.description }
-function greaterThan(pivot) { return val => val.description > pivot.description }
-function equalTo(pivot)     { return val => val.description === pivot.description }
-
-function quicksort(crimeData: CrimeData,/* start: number, end: number*/): /*void*/CrimeData {
-    // console.log(start, end)
-    // if(end - start <= 1) 
-    //     return;
-
-    // const pivotIndex =  start;
-
-    // let low=start+1, 
-    //     high=end -1, 
-    //     pivot= crimeData[start]
-    // while(low <= high) { 
-    //     while(crimeData[low].description < pivot.description) 
-    //         ++low
-    //     while(crimeData[high].description > pivot.description) 
-    //         --high
-
-    //     if(low <= high) {
-    //         [crimeData[low], crimeData[high]] = [crimeData[high], crimeData[low]]
-    //         ++low
-    //         --high
-    //     }
-    // }
-
-    // if(crimeData[Math.min(low, high)].description < crimeData[pivotIndex].description)
-    //     [crimeData[pivotIndex], crimeData[Math.min(low, high)]] = [crimeData[Math.min(low, high)], crimeData[pivotIndex]]
-    // if(low !== high)
-    //     console.log("\t", low, high)
-
-    // quicksort(crimeData, start, Math.min(low, high))
-    // quicksort(crimeData, Math.max(low, high), end)
+function quicksort(crimeData: CrimeData): CrimeData {
     if(crimeData.length <= 1) return crimeData
 
     let pivot = crimeData[Math.floor(Math.random() * crimeData.length)];
@@ -63,14 +21,17 @@ function quicksort(crimeData: CrimeData,/* start: number, end: number*/): /*void
 }
 
 function searchSides(crimeData: CrimeData, query: string, start: number, mid: number, end: number): CrimeData {
+    //Used by binarySearchArray to get all elements with equal descriptions
     const output: CrimeData = []
 
+    //Get all elements on the left
     let i = mid -1
     while(i >= start && crimeData[i].description.startsWith(query) ) {
         output.push(crimeData[i])
         i--
     }
 
+    //Get all elements on the right
     i = mid 
     while(i < end && crimeData[i].description.startsWith(query) ) {
         output.push(crimeData[i])
@@ -78,12 +39,6 @@ function searchSides(crimeData: CrimeData, query: string, start: number, mid: nu
     }
     
     return output
-}
-
-function depth(node: CrimeDataTree) {
-    if(!node)
-        return 0
-    return Math.max(1 + depth(node.left), 1 + depth(node.right))
 }
 
 function arrayBinarySearch(crimeData: CrimeData, query: string, start: number, end: number, savedSort: CrimeData): [CrimeData, CrimeData] {
@@ -113,6 +68,7 @@ type CrimeDataTree = undefined | {
 }
 
 function insertBST(root: CrimeDataTree, node: {lat: number, lng: number, description: string}) {
+    //Inserts the data into its proper place in the given binary search tree
     let flag: boolean
     if(node.description === root.value.description)
         flag = Math.random() < 0.5
@@ -134,19 +90,22 @@ function insertBST(root: CrimeDataTree, node: {lat: number, lng: number, descrip
 }
 
 function makeBST(crimeData: CrimeData): CrimeDataTree {
+    //Repeatedly inserts the data into a binary search tree
     const [head, ...tail] = crimeData
     let root: CrimeDataTree = {left: undefined, right: undefined, value: head}
 
-    for(const row of tail)
-        insertBST(root, row)
+    for(const {lat, lng, description} of tail)
+        insertBST(root, {lat, lng, description: description.toLowerCase()})
     return root
 }
 
 function treeBinarySearch(crimeData: CrimeData, query: string, savedBST: CrimeDataTree): [CrimeData, CrimeDataTree] {
+    //Search through the BST until a node with a description that starts with query is found
     if(!savedBST)
         savedBST = makeBST(crimeData)
 
     const traverse = (root: CrimeDataTree, query: string): CrimeData => {
+        //Binary search, collecting all values that match the query
         if(!root)
             return []
         else if(root.value.description.startsWith(query))

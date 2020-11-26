@@ -4,7 +4,7 @@ let savedBST: CrimeDataTree
 let savedSort: CrimeData
 
 function handleSearch(crimeData: CrimeData) {
-    const searchQuery: string = (document.querySelector("input[type=search]") as HTMLInputElement).value
+    const searchQuery: string = (document.querySelector("input[type=search]") as HTMLInputElement).value.toLowerCase()
 
     const reuseSort: boolean = (document.querySelector('input[type=checkbox]') as HTMLInputElement).checked
 
